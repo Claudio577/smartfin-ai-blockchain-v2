@@ -73,7 +73,7 @@ with col2:
     pais_destino = st.selectbox("🌎 País de destino", ["Brasil", "EUA", "China", "Nigéria", "Alemanha"])
 
 if st.button("🔍 Analisar risco com IA"):
-    resultado = analisar_transacao(st.session_state.modelo, st.session_state.encoders,
+    resultado = analisar_transacao(st.session_state.modelo, st.session_state.label,
                                valor, pais_origem, pais_destino, hora, historico)
 
     st.session_state.resultado = resultado
@@ -124,4 +124,19 @@ if st.button("🔍 Verificar integridade"):
         st.success("✅ Blockchain íntegra e sem alterações detectadas.")
     else:
         st.error("⚠️ Blockchain alterada ou corrompida!")
+
+import requests
+
+if st.button("🔍 Testar API Backend"):
+    url = "https://smartfin-backend.onrender.com/analisar"
+    data = {
+        "valor": 3500,
+        "pais_origem": "Brasil",
+        "pais_destino": "EUA",
+        "hora": 14,
+        "historico": "medio"
+    }
+    resp = requests.post(url, json=data)
+    st.json(resp.json())
+
 
