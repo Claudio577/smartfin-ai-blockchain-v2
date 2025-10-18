@@ -161,7 +161,7 @@ if st.button("🔍 Verificar integridade"):
 import requests
 
 if st.button("🔍 Testar API Backend"):
-    url = "https://smartfin-backend.onrender.com/analisar"
+    url = "https://smartfin-backend.onrender.com/analisar"  # <- SEM BARRA DUPLA OU ERRO
     data = {
         "valor": 3500,
         "pais_origem": "Brasil",
@@ -169,6 +169,9 @@ if st.button("🔍 Testar API Backend"):
         "hora": 14,
         "historico": "medio"
     }
+    resp = requests.post(url, json=data)
+    st.json(resp.json())
+
 
     try:
         resp = requests.post(url, json=data, timeout=10)
