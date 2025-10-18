@@ -1,7 +1,43 @@
-valor,pais_origem,pais_destino,hora,historico,risco
-1500,Brasil,EUA,14,bom,baixo
-3200,EUA,Brasil,22,medio,medio
-7000,China,Nigéria,3,ruim,alto
-2500,Alemanha,Brasil,11,bom,baixo
-10000,Brasil,China,18,ruim,alto
+# ==========================================================
+# 💎 CONVERSOR PAYSIM → TRANSACTIONS.CSV (SmartFin AI Blockchain)
+# ==========================================================
+import pandas as pd
+import numpy as np
 
+arquivo = "paysim.csv"
+print("📂 Carregando PaySim...")
+df = pd.read_csv(arquivo)
+
+# Reduz o tamanho pra facilitar upload
+df = df.sample(5000, random_state=42)
+
+paises = ["Brasil", "EUA", "China", "Nigéria", "Alemanha"]
+
+def historico_por_tipo(tipo):
+    if tipo in ["CASH_OUT", "TRANSFER"]:
+        return "medio"
+    elif tipo in ["DEBIT", "PAYMENT"]:
+        return "bom"
+    else:
+        return "ruim"
+
+def risco_por_linha(row):
+    if row["isFraud"] == 1:
+        return "alto"
+    elif row["amount"] > 4000:
+        return "medio"
+    else:
+        return "baixo"
+
+out = pd.DataFrame({
+    "valor": df["amount"].astype(int),
+    "pais_origem": np.random.choice(paises, len(df)),
+    "pais_destino": np.random.choice(paises, len(df)),
+    "hora": np.random.randint(0, 24, len(df)),
+    "historico": df["type"].apply(historico_por_tipo),
+    "risco": df.apply(risco_por_linha, axis=1)
+})
+
+out.to_csv("transactions.csv", index=False)
+print("✅ Gerado transactions.csv com", len(out), "linhas")
+out.head()
