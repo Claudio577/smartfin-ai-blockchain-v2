@@ -69,7 +69,7 @@ class Bloco:
 class Blockchain:
     def __init__(self, dificuldade=4):
         self.cadeia = []
-        self.dificuldade = dificuldade
+        self.dificuldade = max(2, dificuldade)
         self.criar_bloco_genesis()
 
     # Primeiro bloco da cadeia
