@@ -27,6 +27,8 @@ def ping_backend():
 
 # Executa em segundo plano, sem travar o Streamlit
 threading.Thread(target=ping_backend, daemon=True).start()
+st.info("⏳ Conectando ao servidor SmartFin... (pode levar alguns segundos)")
+
 
 # ==========================================================
 # 🧩 VERIFICAÇÃO AUTOMÁTICA DE ARQUIVOS
