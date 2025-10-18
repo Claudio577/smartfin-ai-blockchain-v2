@@ -6,9 +6,9 @@ services:
     startCommand: "streamlit run app.py --server.port $PORT --server.address 0.0.0.0"
     plan: free
 
-- type: web
-  name: smartfin-backend
-  env: python
-  buildCommand: "pip install -r requirements.txt"
-  startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
-  plan: free
+  - type: web
+    name: smartfin-backend
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    plan: free
