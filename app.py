@@ -10,13 +10,12 @@ from ai_fraud import treinar_modelo, analisar_transacao
 from blockchain import Blockchain
 import os
 import json
-
-# ==========================================================
-# 🔄 Ping automático para acordar o backend (Render Free Plan)
-# ==========================================================
 import requests
 import threading
 
+# ==========================================================
+# 🔄 PING AUTOMÁTICO PARA ACORDAR O BACKEND
+# ==========================================================
 def ping_backend():
     url = "https://smartfin-backend.onrender.com/"
     try:
@@ -25,9 +24,23 @@ def ping_backend():
     except Exception as e:
         print("⚠️ Erro ao pingar backend:", e)
 
-# Executa em segundo plano, sem travar o Streamlit
+# Executa o ping em segundo plano (não trava o app)
 threading.Thread(target=ping_backend, daemon=True).start()
-st.info("⏳ Conectando ao servidor SmartFin... (pode levar alguns segundos)")
+
+# ==========================================================
+# ⚙️ CONFIGURAÇÕES INICIAIS
+# ==========================================================
+st.set_page_config(
+    page_title="SmartFin AI Blockchain v2",
+    layout="wide",
+    page_icon="💰"
+)
+
+st.title("💰 SmartFin AI Blockchain v2 — IA + Blockchain Antifraude")
+st.markdown("""
+Este sistema demonstra como **IA e Blockchain** podem trabalhar juntas para criar um ambiente
+**financeiro mais seguro, transparente e auditável**.
+""")
 
 
 # ==========================================================
