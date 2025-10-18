@@ -65,21 +65,6 @@ if not os.path.exists("data/transactions.csv"):
 
 
 # ==========================================================
-# ⚙️ CONFIGURAÇÕES INICIAIS
-# ==========================================================
-st.set_page_config(
-    page_title="SmartFin AI Blockchain v2",
-    layout="wide",
-    page_icon="💰"
-)
-
-st.title("💰 SmartFin AI Blockchain v2 — IA + Blockchain Antifraude")
-st.markdown("""
-Este sistema demonstra como **IA e Blockchain** podem trabalhar juntas para criar um ambiente
-**financeiro mais seguro, transparente e auditável**.
-""")
-
-# ==========================================================
 # 🚀 INICIALIZAÇÃO
 # ==========================================================
 if "modelo" not in st.session_state:
@@ -185,6 +170,47 @@ if st.button("🔍 Testar API Backend"):
         st.error(f"❌ Erro ao conectar ao backend: {e}")
         st.info("O servidor pode estar hibernando no Render (plano gratuito). Tente novamente em 30s.")
 
+# ==========================================================
+# 🔍 TESTE DO BACKEND (com tratamento de erro e loading)
+# ==========================================================
+import requests
+
+st.header("🧠 Teste de Conexão com Backend (FastAPI)")
+
+if st.button("🔍 Testar API Backend"):
+    url = "https://smartfin-backend.onrender.com/analisar"  # endpoint FastAPI (POST)
+    data = {
+        "valor": 3500,
+        "pais_origem": "Brasil",
+        "pais_destino": "EUA",
+        "hora": 14,
+        "historico": "medio"
+    }
+
+    with st.spinner("🔄 Enviando dados para o backend... Aguarde um momento."):
+        try:
+            # Envia a requisição POST
+            resp = requests.post(url, json=data, timeout=10)
+
+            # Mostra o código HTTP recebido
+            st.write(f"📡 Código de resposta: {resp.status_code}")
+
+            # Se sucesso, tenta converter em JSON
+            try:
+                resultado = resp.json()
+                st.success("✅ Resposta JSON recebida do backend:")
+                st.json(resultado)
+            except ValueError:
+                st.warning("⚠️ O backend respondeu, mas não retornou JSON válido.")
+                st.text(resp.text[:500])  # Mostra parte da resposta crua
+
+        except requests.exceptions.ConnectionError:
+            st.error("🚫 Não foi possível conectar ao backend (servidor offline ou hibernando).")
+            st.info("💤 O Render gratuito hiberna após 15 minutos sem acesso. Tente novamente em alguns segundos.")
+        except requests.exceptions.Timeout:
+            st.error("⏳ O backend demorou muito para responder (timeout).")
+        except Exception as e:
+            st.error(f"❌ Erro inesperado: {e}")
 
 # ==========================================================
 # 📊 DASHBOARD DE MONITORAMENTO
