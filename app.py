@@ -137,8 +137,19 @@ if st.button("🔍 Testar API Backend"):
         "hora": 14,
         "historico": "medio"
     }
-    resp = requests.post(url, json=data)
-    st.json(resp.json())
+
+    try:
+        resp = requests.post(url, json=data, timeout=10)
+        resp.raise_for_status()  # dispara erro se código HTTP != 200
+        try:
+            st.json(resp.json())
+        except Exception:
+            st.warning("⚠️ O backend respondeu, mas não retornou JSON válido.")
+            st.text(resp.text[:500])
+    except requests.exceptions.RequestException as e:
+        st.error(f"❌ Erro ao conectar ao backend: {e}")
+        st.info("O servidor pode estar hibernando no Render (plano gratuito). Tente novamente em 30s.")
+
 
 # ==========================================================
 # 📊 DASHBOARD DE MONITORAMENTO
