@@ -1,1 +1,7 @@
+valor,pais_origem,pais_destino,hora,historico,risco
+1500,Brasil,EUA,14,bom,baixo
+3200,EUA,Brasil,22,medio,medio
+7000,China,Nigéria,3,ruim,alto
+2500,Alemanha,Brasil,11,bom,baixo
+10000,Brasil,China,18,ruim,alto
 
