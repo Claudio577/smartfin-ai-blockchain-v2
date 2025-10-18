@@ -43,10 +43,15 @@ def gerar_dados_sinteticos(n=300):
 def treinar_modelo():
     df = gerar_dados_sinteticos(500)
 
-    # Codificar variáveis categóricas
-    label = LabelEncoder()
-    for col in ["pais_origem", "pais_destino", "historico_cliente"]:
-        df[col] = label.fit_transform(df[col])
+    # Codificadores separados por coluna
+    encoders = {
+        "pais_origem": LabelEncoder(),
+        "pais_destino": LabelEncoder(),
+        "historico_cliente": LabelEncoder(),
+    }
+
+    for col, encoder in encoders.items():
+        df[col] = encoder.fit_transform(df[col])
 
     X = df[["valor", "pais_origem", "pais_destino", "hora", "historico_cliente"]]
     y = df["risco"]
@@ -57,31 +62,28 @@ def treinar_modelo():
     modelo.fit(X_train, y_train)
 
     print("✅ Modelo antifraude treinado com sucesso.")
-    return modelo, label
+    return modelo, encoders
 
 # ==========================================================
 # 🧮 FUNÇÃO DE ANÁLISE DE RISCO
 # ==========================================================
-def analisar_transacao(modelo, label, valor, pais_origem, pais_destino, hora, historico_cliente):
+def analisar_transacao(modelo, encoders, valor, pais_origem, pais_destino, hora, historico_cliente):
     entrada = pd.DataFrame([{
         "valor": valor,
-        "pais_origem": label.transform([pais_origem])[0],
-        "pais_destino": label.transform([pais_destino])[0],
+        "pais_origem": encoders["pais_origem"].transform([pais_origem])[0],
+        "pais_destino": encoders["pais_destino"].transform([pais_destino])[0],
         "hora": hora,
-        "historico_cliente": label.transform([historico_cliente])[0]
+        "historico_cliente": encoders["historico_cliente"].transform([historico_cliente])[0]
     }])
 
     risco_previsto = modelo.predict(entrada)[0]
 
     if risco_previsto == "baixo":
-        emoji = "🟢"
-        mensagem = "Transação segura"
+        emoji, mensagem = "🟢", "Transação segura"
     elif risco_previsto == "medio":
-        emoji = "🟡"
-        mensagem = "Risco médio"
+        emoji, mensagem = "🟡", "Risco médio"
     else:
-        emoji = "🔴"
-        mensagem = "Suspeita de fraude"
+        emoji, mensagem = "🔴", "Suspeita de fraude"
 
     resultado = f"{emoji} {mensagem}"
     print(f"🔍 Resultado da análise: {resultado}")
