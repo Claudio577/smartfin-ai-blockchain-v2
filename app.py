@@ -12,6 +12,8 @@ import os
 import json
 import requests
 import threading
+import pandas as pd
+import altair as alt
 
 # ==========================================================
 # 🔄 PING AUTOMÁTICO PARA ACORDAR O BACKEND
@@ -42,7 +44,6 @@ Este sistema demonstra como **IA e Blockchain** podem trabalhar juntas para cria
 **financeiro mais seguro, transparente e auditável**.
 """)
 
-
 # ==========================================================
 # 🧩 VERIFICAÇÃO AUTOMÁTICA DE ARQUIVOS
 # ==========================================================
@@ -62,7 +63,6 @@ if not os.path.exists("data/transactions.csv"):
         f.write("7000,China,Nigéria,3,ruim,alto\n")
         f.write("2500,Alemanha,Brasil,11,bom,baixo\n")
         f.write("10000,Brasil,China,18,ruim,alto\n")
-
 
 # ==========================================================
 # 🚀 INICIALIZAÇÃO
@@ -90,10 +90,11 @@ with col2:
     pais_destino = st.selectbox("🌎 País de destino", ["Brasil", "EUA", "China", "Nigéria", "Alemanha"])
 
 if st.button("🔍 Analisar risco com IA"):
-    resultado = analisar_transacao(st.session_state.modelo, st.session_state.encoders,
-                               valor, pais_origem, pais_destino, hora, historico)
-
-
+    resultado = analisar_transacao(
+        st.session_state.modelo,
+        st.session_state.encoders,
+        valor, pais_origem, pais_destino, hora, historico
+    )
     st.session_state.resultado = resultado
     st.success(f"Resultado: {resultado}")
 
@@ -143,53 +144,13 @@ if st.button("🔍 Verificar integridade"):
     else:
         st.error("⚠️ Blockchain alterada ou corrompida!")
 
-import requests
-
-if st.button("🔍 Testar API Backend"):
-    url = "https://smartfin-backend.onrender.com/analisar"
-    data = {
-        "valor": 3500,
-        "pais_origem": "Brasil",
-        "pais_destino": "EUA",
-        "hora": 14,
-        "historico": "medio"
-    }
-
-    with st.spinner("🔄 Enviando requisição para o backend..."):
-        try:
-            resp = requests.post(url, json=data, timeout=10)
-            st.write(f"📡 Código de resposta: {resp.status_code}")
-
-            # Se o status for 200, tenta interpretar JSON
-            if resp.status_code == 200:
-                try:
-                    st.success("✅ Backend respondeu com sucesso:")
-                    st.json(resp.json())
-                except ValueError:
-                    st.warning("⚠️ O backend respondeu, mas o conteúdo não é JSON válido.")
-                    st.text(resp.text[:500])
-            else:
-                st.error(f"❌ Erro HTTP {resp.status_code}")
-                st.text(resp.text[:500])
-
-        except requests.exceptions.ConnectionError:
-            st.error("🚫 Não foi possível conectar ao backend.")
-            st.info("💤 O servidor Render pode estar hibernando. Tente novamente em alguns segundos.")
-        except requests.exceptions.Timeout:
-            st.error("⏳ Tempo limite atingido (timeout).")
-        except Exception as e:
-            st.error(f"❌ Erro inesperado: {e}")
-
-
 # ==========================================================
-# 🔍 TESTE DO BACKEND (com tratamento de erro e loading)
+# 🔍 TESTE ÚNICO DO BACKEND (com tratamento robusto)
 # ==========================================================
-import requests
-
 st.header("🧠 Teste de Conexão com Backend (FastAPI)")
 
-if st.button("🔍 Testar API Backend"):
-    url = "https://smartfin-backend.onrender.com/analisar"  # endpoint FastAPI (POST)
+if st.button("🔍 Testar API Backend", key="backend_teste"):
+    url = "https://smartfin-backend.onrender.com/analisar"
     data = {
         "valor": 3500,
         "pais_origem": "Brasil",
@@ -200,20 +161,20 @@ if st.button("🔍 Testar API Backend"):
 
     with st.spinner("🔄 Enviando dados para o backend... Aguarde um momento."):
         try:
-            # Envia a requisição POST
             resp = requests.post(url, json=data, timeout=10)
-
-            # Mostra o código HTTP recebido
             st.write(f"📡 Código de resposta: {resp.status_code}")
 
-            # Se sucesso, tenta converter em JSON
-            try:
-                resultado = resp.json()
-                st.success("✅ Resposta JSON recebida do backend:")
-                st.json(resultado)
-            except ValueError:
-                st.warning("⚠️ O backend respondeu, mas não retornou JSON válido.")
-                st.text(resp.text[:500])  # Mostra parte da resposta crua
+            if resp.status_code == 200:
+                try:
+                    resultado = resp.json()
+                    st.success("✅ Backend respondeu com sucesso:")
+                    st.json(resultado)
+                except ValueError:
+                    st.warning("⚠️ O backend respondeu, mas o conteúdo não é JSON válido.")
+                    st.text(resp.text[:500])
+            else:
+                st.error(f"❌ Erro HTTP {resp.status_code}")
+                st.text(resp.text[:500])
 
         except requests.exceptions.ConnectionError:
             st.error("🚫 Não foi possível conectar ao backend (servidor offline ou hibernando).")
@@ -226,21 +187,14 @@ if st.button("🔍 Testar API Backend"):
 # ==========================================================
 # 📊 DASHBOARD DE MONITORAMENTO
 # ==========================================================
-import pandas as pd
-import altair as alt
-
 st.header("📊 Dashboard de Monitoramento — SmartFin AI Blockchain")
 
-# Carregar dados da blockchain
 if os.path.exists("data/chain.json"):
     with open("data/chain.json", "r", encoding="utf-8") as f:
         chain_data = json.load(f)
     df = pd.DataFrame(chain_data)
 
     if not df.empty:
-        # ================================================
-        # 📈 KPIs (Indicadores principais)
-        # ================================================
         total = len(df)
         seguras = len(df[df['risco'].str.contains('segura', case=False)])
         medias = len(df[df['risco'].str.contains('médio', case=False)])
@@ -255,9 +209,6 @@ if os.path.exists("data/chain.json"):
 
         st.markdown("---")
 
-        # ================================================
-        # 📊 Gráfico de distribuição de risco
-        # ================================================
         st.subheader("📉 Distribuição de Risco nas Transações")
         risk_chart = alt.Chart(df).mark_bar().encode(
             x=alt.X("risco:N", title="Nível de Risco"),
@@ -266,9 +217,6 @@ if os.path.exists("data/chain.json"):
         )
         st.altair_chart(risk_chart, use_container_width=True)
 
-        # ================================================
-        # ⛓️ Linha do tempo da Blockchain
-        # ================================================
         st.subheader("⛓️ Evolução dos Blocos na Blockchain")
         time_chart = alt.Chart(df).mark_line(point=True).encode(
             x=alt.X("index:Q", title="Índice do Bloco"),
@@ -277,9 +225,6 @@ if os.path.exists("data/chain.json"):
         ).interactive()
         st.altair_chart(time_chart, use_container_width=True)
 
-        # ================================================
-        # 📜 Histórico completo da Blockchain
-        # ================================================
         st.subheader("🧾 Histórico Completo de Blocos")
         df_display = df[["index", "transacao", "risco", "hash", "timestamp"]]
         st.dataframe(df_display, use_container_width=True, height=300)
@@ -287,4 +232,3 @@ if os.path.exists("data/chain.json"):
         st.info("Nenhum bloco encontrado na cadeia.")
 else:
     st.info("A blockchain ainda não foi criada. Registre uma transação para iniciar.")
-
