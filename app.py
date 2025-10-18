@@ -146,7 +146,7 @@ if st.button("🔍 Verificar integridade"):
 import requests
 
 if st.button("🔍 Testar API Backend"):
-    url = "https://smartfin-backend.onrender.com/analisar"  # <- SEM BARRA DUPLA OU ERRO
+    url = "https://smartfin-backend.onrender.com/analisar"
     data = {
         "valor": 3500,
         "pais_origem": "Brasil",
@@ -154,21 +154,32 @@ if st.button("🔍 Testar API Backend"):
         "hora": 14,
         "historico": "medio"
     }
-    resp = requests.post(url, json=data)
-    st.json(resp.json())
 
-
-    try:
-        resp = requests.post(url, json=data, timeout=10)
-        resp.raise_for_status()  # dispara erro se código HTTP != 200
+    with st.spinner("🔄 Enviando requisição para o backend..."):
         try:
-            st.json(resp.json())
-        except Exception:
-            st.warning("⚠️ O backend respondeu, mas não retornou JSON válido.")
-            st.text(resp.text[:500])
-    except requests.exceptions.RequestException as e:
-        st.error(f"❌ Erro ao conectar ao backend: {e}")
-        st.info("O servidor pode estar hibernando no Render (plano gratuito). Tente novamente em 30s.")
+            resp = requests.post(url, json=data, timeout=10)
+            st.write(f"📡 Código de resposta: {resp.status_code}")
+
+            # Se o status for 200, tenta interpretar JSON
+            if resp.status_code == 200:
+                try:
+                    st.success("✅ Backend respondeu com sucesso:")
+                    st.json(resp.json())
+                except ValueError:
+                    st.warning("⚠️ O backend respondeu, mas o conteúdo não é JSON válido.")
+                    st.text(resp.text[:500])
+            else:
+                st.error(f"❌ Erro HTTP {resp.status_code}")
+                st.text(resp.text[:500])
+
+        except requests.exceptions.ConnectionError:
+            st.error("🚫 Não foi possível conectar ao backend.")
+            st.info("💤 O servidor Render pode estar hibernando. Tente novamente em alguns segundos.")
+        except requests.exceptions.Timeout:
+            st.error("⏳ Tempo limite atingido (timeout).")
+        except Exception as e:
+            st.error(f"❌ Erro inesperado: {e}")
+
 
 # ==========================================================
 # 🔍 TESTE DO BACKEND (com tratamento de erro e loading)
