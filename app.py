@@ -12,6 +12,23 @@ import os
 import json
 
 # ==========================================================
+# 🔄 Ping automático para acordar o backend (Render Free Plan)
+# ==========================================================
+import requests
+import threading
+
+def ping_backend():
+    url = "https://smartfin-backend.onrender.com/"
+    try:
+        requests.get(url, timeout=5)
+        print("🔄 Backend acordado com sucesso!")
+    except Exception as e:
+        print("⚠️ Erro ao pingar backend:", e)
+
+# Executa em segundo plano, sem travar o Streamlit
+threading.Thread(target=ping_backend, daemon=True).start()
+
+# ==========================================================
 # 🧩 VERIFICAÇÃO AUTOMÁTICA DE ARQUIVOS
 # ==========================================================
 os.makedirs("data", exist_ok=True)
