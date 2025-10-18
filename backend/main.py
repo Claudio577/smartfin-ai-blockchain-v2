@@ -2,7 +2,7 @@
 # 💎 SmartFin AI Blockchain Backend (FastAPI)
 # ==========================================================
 # Autor: Claudio Yoshida
-# Descrição: API antifraude + blockchain integrada
+# Descrição: API antifraude + blockchain integrada com IA
 # ==========================================================
 
 from fastapi import FastAPI
@@ -19,7 +19,7 @@ app = FastAPI(
 # ==========================================================
 # 🚀 Inicialização
 # ==========================================================
-modelo, label = treinar_modelo()
+modelo, encoders = treinar_modelo()
 blockchain = Blockchain(dificuldade=4)
 
 # ==========================================================
@@ -38,7 +38,7 @@ class Transacao(BaseModel):
 @app.post("/analisar")
 def analisar(transacao: Transacao):
     resultado = analisar_transacao(
-        modelo, label,
+        modelo, encoders,
         transacao.valor,
         transacao.pais_origem,
         transacao.pais_destino,
@@ -53,7 +53,7 @@ def analisar(transacao: Transacao):
 @app.post("/registrar")
 def registrar(transacao: Transacao):
     resultado = analisar_transacao(
-        modelo, label,
+        modelo, encoders,
         transacao.valor,
         transacao.pais_origem,
         transacao.pais_destino,
@@ -78,3 +78,4 @@ def registrar(transacao: Transacao):
 @app.get("/")
 def raiz():
     return {"mensagem": "SmartFin AI Blockchain API v2 ativa ✅"}
+
