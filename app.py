@@ -51,7 +51,7 @@ Este sistema demonstra como **IA e Blockchain** podem trabalhar juntas para cria
 # 🚀 INICIALIZAÇÃO
 # ==========================================================
 if "modelo" not in st.session_state:
-    resultado = analisar_transacao(st.session_state.modelo, st.session_state.label, ...)
+    st.session_state.modelo, st.session_state.encoders = treinar_modelo()
 
 if "blockchain" not in st.session_state:
     st.session_state.blockchain = Blockchain(dificuldade=4)
@@ -73,8 +73,9 @@ with col2:
     pais_destino = st.selectbox("🌎 País de destino", ["Brasil", "EUA", "China", "Nigéria", "Alemanha"])
 
 if st.button("🔍 Analisar risco com IA"):
-    resultado = analisar_transacao(st.session_state.modelo, st.session_state.label,
-                                   valor, pais_origem, pais_destino, hora, historico)
+    resultado = analisar_transacao(st.session_state.modelo, st.session_state.encoders,
+                               valor, pais_origem, pais_destino, hora, historico)
+
     st.session_state.resultado = resultado
     st.success(f"Resultado: {resultado}")
 
