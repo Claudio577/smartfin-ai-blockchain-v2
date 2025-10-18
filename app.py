@@ -51,7 +51,7 @@ Este sistema demonstra como **IA e Blockchain** podem trabalhar juntas para cria
 # 🚀 INICIALIZAÇÃO
 # ==========================================================
 if "modelo" not in st.session_state:
-    st.session_state.modelo, st.session_state.encoders = treinar_modelo()
+    st.session_state.modelo, st.session_state.label = treinar_modelo()
 
 if "blockchain" not in st.session_state:
     st.session_state.blockchain = Blockchain(dificuldade=4)
