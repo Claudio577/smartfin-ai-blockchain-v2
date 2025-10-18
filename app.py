@@ -139,4 +139,68 @@ if st.button("🔍 Testar API Backend"):
     resp = requests.post(url, json=data)
     st.json(resp.json())
 
+# ==========================================================
+# 📊 DASHBOARD DE MONITORAMENTO
+# ==========================================================
+import pandas as pd
+import altair as alt
+
+st.header("📊 Dashboard de Monitoramento — SmartFin AI Blockchain")
+
+# Carregar dados da blockchain
+if os.path.exists("data/chain.json"):
+    with open("data/chain.json", "r", encoding="utf-8") as f:
+        chain_data = json.load(f)
+    df = pd.DataFrame(chain_data)
+
+    if not df.empty:
+        # ================================================
+        # 📈 KPIs (Indicadores principais)
+        # ================================================
+        total = len(df)
+        seguras = len(df[df['risco'].str.contains('segura', case=False)])
+        medias = len(df[df['risco'].str.contains('médio', case=False)])
+        altas = len(df[df['risco'].str.contains('fraude|alto', case=False)])
+        ult_hash = df.iloc[-1]['hash'][:20]
+
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Transações Totais", total)
+        col2.metric("Seguras", seguras)
+        col3.metric("Suspeitas", medias + altas)
+        col4.metric("Último Hash", ult_hash)
+
+        st.markdown("---")
+
+        # ================================================
+        # 📊 Gráfico de distribuição de risco
+        # ================================================
+        st.subheader("📉 Distribuição de Risco nas Transações")
+        risk_chart = alt.Chart(df).mark_bar().encode(
+            x=alt.X("risco:N", title="Nível de Risco"),
+            y=alt.Y("count():Q", title="Quantidade"),
+            color=alt.Color("risco:N", legend=None)
+        )
+        st.altair_chart(risk_chart, use_container_width=True)
+
+        # ================================================
+        # ⛓️ Linha do tempo da Blockchain
+        # ================================================
+        st.subheader("⛓️ Evolução dos Blocos na Blockchain")
+        time_chart = alt.Chart(df).mark_line(point=True).encode(
+            x=alt.X("index:Q", title="Índice do Bloco"),
+            y=alt.Y("valor:Q", title="Valor (simulado R$)", scale=alt.Scale(domain=(0, 10000))),
+            color=alt.Color("risco:N", legend=None)
+        ).interactive()
+        st.altair_chart(time_chart, use_container_width=True)
+
+        # ================================================
+        # 📜 Histórico completo da Blockchain
+        # ================================================
+        st.subheader("🧾 Histórico Completo de Blocos")
+        df_display = df[["index", "transacao", "risco", "hash", "timestamp"]]
+        st.dataframe(df_display, use_container_width=True, height=300)
+    else:
+        st.info("Nenhum bloco encontrado na cadeia.")
+else:
+    st.info("A blockchain ainda não foi criada. Registre uma transação para iniciar.")
 
