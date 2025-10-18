@@ -12,6 +12,27 @@ import os
 import json
 
 # ==========================================================
+# 🧩 VERIFICAÇÃO AUTOMÁTICA DE ARQUIVOS
+# ==========================================================
+os.makedirs("data", exist_ok=True)
+
+# Cria arquivo JSON inicial se não existir
+if not os.path.exists("data/chain.json"):
+    with open("data/chain.json", "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+
+# Cria CSV inicial se não existir
+if not os.path.exists("data/transactions.csv"):
+    with open("data/transactions.csv", "w", encoding="utf-8") as f:
+        f.write("valor,pais_origem,pais_destino,hora,historico,risco\n")
+        f.write("1500,Brasil,EUA,14,bom,baixo\n")
+        f.write("3200,EUA,Brasil,22,medio,medio\n")
+        f.write("7000,China,Nigéria,3,ruim,alto\n")
+        f.write("2500,Alemanha,Brasil,11,bom,baixo\n")
+        f.write("10000,Brasil,China,18,ruim,alto\n")
+
+
+# ==========================================================
 # ⚙️ CONFIGURAÇÕES INICIAIS
 # ==========================================================
 st.set_page_config(
