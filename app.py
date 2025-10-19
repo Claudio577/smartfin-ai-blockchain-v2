@@ -19,7 +19,7 @@ import altair as alt
 # 🔄 PING AUTOMÁTICO PARA ACORDAR O BACKEND
 # ==========================================================
 def ping_backend():
-    url = "https://smartfin-backend.onrender.com/"
+    url = "https://smartfin-backend-d3kjmo3ipnbc73fugnf0.onrender.com/"
     try:
         requests.get(url, timeout=5)
         print("🔄 Backend acordado com sucesso!")
@@ -150,7 +150,7 @@ if st.button("🔍 Verificar integridade"):
 st.header("🧠 Teste de Conexão com Backend (FastAPI)")
 
 if st.button("🔍 Testar API Backend", key="backend_teste"):
-    url = "https://smartfin-backend-6bu9.onrender.com/analisar"  # exemplo real, substitua pelo seu
+    url = "https://smartfin-backend-d3kjmo3ipnbc73fugnf0.onrender.com/analisar"
 
     data = {
         "valor": 3500,
