@@ -150,7 +150,8 @@ if st.button("🔍 Verificar integridade"):
 st.header("🧠 Teste de Conexão com Backend (FastAPI)")
 
 if st.button("🔍 Testar API Backend", key="backend_teste"):
-    url = "https://smartfin-backend.onrender.com/analisar"
+    url = "https://smartfin-backend-6bu9.onrender.com/analisar"  # exemplo real, substitua pelo seu
+
     data = {
         "valor": 3500,
         "pais_origem": "Brasil",
